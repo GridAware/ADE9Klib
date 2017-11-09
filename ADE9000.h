@@ -626,22 +626,42 @@ typedef union{
     uint64_t ull_Data;
 }ADE_Energy_UNION;
 
-typedef struct{
-    bool          Bit0  : 1;    //Bit 0
-    bool          Bit1  : 1;
-    bool          Bit2  : 1;
-    bool          Bit3  : 1;
-    bool          Bit4  : 1;
-    bool          Bit5  : 1;
-    bool          Bit6  : 1;
-    bool          Bit7  : 1;
-    bool          Bit8  : 1;
-    bool          Bit9  : 1;
-    bool          Bit10 : 1;
-    bool          Bit11 : 1;
-    bool          Bit12 : 1;
-    bool          Bit13 : 1;
-    bool          Bit14 : 1;
-    bool          Bit15 : 1;     //Bit 15
-}Bool16Bits;
+typedef union BitRegister
+{
+    uint8_t uc_Register[4];
+    struct{
+        bool          Bit0  : 1;    //Bit 0
+        bool          Bit1  : 1;
+        bool          Bit2  : 1;
+        bool          Bit3  : 1;
+        bool          Bit4  : 1;
+        bool          Bit5  : 1;
+        bool          Bit6  : 1;
+        bool          Bit7  : 1;
+        bool          Bit8  : 1;
+        bool          Bit9  : 1;
+        bool          Bit10 : 1;
+        bool          Bit11 : 1;
+        bool          Bit12 : 1;
+        bool          Bit13 : 1;
+        bool          Bit14 : 1;
+        bool          Bit15 : 1;     //Bit 15
+        bool          Bit16 : 1;
+        bool          Bit17 : 1;
+        bool          Bit18 : 1;
+        bool          Bit19 : 1;
+        bool          Bit20 : 1;
+        bool          Bit21 : 1;
+        bool          Bit22 : 1;
+        bool          Bit23 : 1;
+        bool          Bit24 : 1;
+        bool          Bit25 : 1;
+        bool          Bit26 : 1;
+        bool          Bit27 : 1;
+        bool          Bit28 : 1;
+        bool          Bit29 : 1;
+        bool          Bit30 : 1;
+        bool          Bit31 : 1;    //Bit 31
+    };
+}BitRegister;
 

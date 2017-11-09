@@ -15,7 +15,17 @@ uint8_t ADE9K::begin()
     pinMode(_SSpin, OUTPUT);
     digitalWrite(_SSpin, HIGH);
 
+    /*
     //Set configuration
+    BitRegister reg_config1;
+    reg_config1.Bit12 = 1; //IRQ0_ON_IRQ1
+    reg_config1.Bit10 = 1; //DIP_SWELL_IRQ_MODE
+    Write_ADE9000_SPI(ADDR_CONFIG1, 2, reg_config1.uc_Register);
+*/    
+    BitRegister reg_mask0;
+    reg_mask0.Bit25 = 1; //TEMP_RDY_MASK
+    Write_ADE9000_SPI(ADDR_MASK0, 2, reg_mask0.uc_Register);
+
 	ADE_REGISTER_UNION ADE9000TempData;
 	ADE9000TempData.ul_Register = 1;
 	Write_ADE9000_SPI(ADDR_RUN, 2, ADE9000TempData.uc_Register);
@@ -147,6 +157,7 @@ uint8_t ADE9K::IsADE9000(void)
 		uc_iChipID = 1;
 	return uc_iChipID;
 }
+
 /*
  * Temperature(°C) = TEMP_RSLT × (−TEMP_GAIN/65536) + (TEMP_OFFSET/32)
  */
@@ -163,12 +174,38 @@ float ADE9K::getTemperature(void)
     Read_ADE9000_SPI(ADDR_TEMP_RSLT,0x2,uc_Read_Temp_Data);
     uint16_t Temp_RSLT = 0 | uc_Read_Temp_Data[0] | (uc_Read_Temp_Data[1] << 8);
     float Temperature = ((float)Temp_RSLT * (((float)TEMP_GAIN * -1 )/65536)) + ((float)TEMP_OFFSET/32);
+    if (Temperature > 100)
+        return 0.00;
+    return Temperature;
+}
 
-    //Enable temperature sensor (next reading)
+/*
+ * Start Temperature sensor (single shot)
+ */
+void ADE9K::requestTemperature(void)
+{
     uint8_t tempRegister[2];
     tempRegister[0] = 0 | BIT0 | BIT1 | BIT2 | BIT3;
     Write_ADE9000_SPI(ADDR_TEMP_CFG, 2, tempRegister);
-    return Temperature;
+}
+
+void ADE9K::ISRStatus0(void)
+{
+    BitRegister uc_Read_Data;
+    BitRegister uc_Write_Data;
+    Read_ADE9000_SPI(ADDR_STATUS0,0x4,uc_Read_Data.uc_Register);
+    if (uc_Read_Data.Bit25 == 1)
+    {
+        uc_Write_Data.Bit25 = 1;
+        _temperatureCallback();
+    }
+    Write_ADE9000_SPI(ADDR_STATUS0,0x4,uc_Write_Data.uc_Register);
+}
+
+//Set CallBacks
+void ADE9K::setTemperatureCallback(void (*temperatureCallback)(void))
+{
+	_temperatureCallback = temperatureCallback;
 }
 
 //Private functions
